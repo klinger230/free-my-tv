@@ -1,32 +1,32 @@
-# Publishes the website in docs/ to GitHub Pages (freemytv.io) whenever it changes on main.
-name: Website
+name: Build Free My TV APK
 
 on:
   push:
-    branches: [main]
-    paths: ["docs/**", ".github/workflows/pages.yml"]
+    branches: [ main, master ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          path: docs
-      - id: deployment
-        uses: actions/deploy-pages@v5
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run build script
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreeMyTV-APK
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            *.apk
